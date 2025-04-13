@@ -1,4 +1,5 @@
-import { useState, createContext } from "react";
+import { useState } from "react";
+import { createContext } from "react";
 
 const REGISTER_URL = "https://ekorpem-api.webluna.org/api/v1/register";
 const LOGIN_URL = "https://ekorpem-api.webluna.org/api/v1/login";
@@ -11,8 +12,8 @@ export const FormProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  //! Registration
-  const registration = async (userData) => {
+  //!Registration
+  const registration = async (usersData) => {
     setLoading(true);
     setError(null);
     try {
@@ -21,27 +22,26 @@ export const FormProvider = ({ children }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(usersData),
       });
-
       const data = await response.json();
       if (!response.ok) {
         throw new Error(
           data.message || "Daxil etdiyiniz E-poçt artıq mövcuddur!!!"
         );
       }
-
-      setUser(data.user);
-      setToken(data.token);
+      setUser(data);
+      return { success: true };
     } catch (error) {
       setError(error.message || "Qeydiyyatınız uğursuzdur!");
+      return { success: false, message: error.message };
     } finally {
       setLoading(false);
     }
   };
 
-  //! Login
-  const login = async (userData) => {
+  //!Login
+  const login = async (usersData) => {
     setLoading(true);
     setError(null);
     try {
@@ -50,19 +50,18 @@ export const FormProvider = ({ children }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(usersData),
       });
-
       const data = await response.json();
       if (!response.ok) {
         throw new Error("Email və ya şifrə yanlışdır!");
       }
-
-      setUser(data.user);
       setToken(data.token);
-      setError(null);
+      setUser(data);
+      return { success: true };
     } catch (error) {
       setError(error.message || "Daxil olmaq mümkün olmadı");
+      return { success: false, message: error.message };
     } finally {
       setLoading(false);
     }
